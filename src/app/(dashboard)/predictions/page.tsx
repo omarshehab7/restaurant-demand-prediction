@@ -3,70 +3,118 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Calendar, Target } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { TrendingUp, Calendar, Target, ArrowUpRight, BarChart3 } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { predictionAccuracy, hourlyOrdersData } from "@/lib/mock-data";
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, delay },
+});
 
 export default function PredictionsPage() {
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-heading text-2xl font-bold mb-1">
-              Demand Predictions
-            </h2>
-            <p className="text-muted-foreground">
-              AI-powered forecasts for your restaurant demand
-            </p>
-          </div>
-          <Badge variant="secondary" className="text-sm px-4 py-1.5">
-            <Target className="h-3.5 w-3.5 mr-1.5" />
-            94% Accuracy
-          </Badge>
+      {/* Header */}
+      <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="font-heading text-2xl font-bold mb-1">Demand Predictions</h2>
+          <p className="text-muted-foreground">AI-powered forecasts for your restaurant demand</p>
         </div>
+        <Badge variant="secondary" className="text-sm px-4 py-1.5 w-fit">
+          <Target className="h-3.5 w-3.5 mr-1.5" />
+          94.2% Accuracy
+        </Badge>
       </motion.div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Summary Cards */}
+      <div className="grid sm:grid-cols-3 gap-4">
         {[
-          { title: "Today's Forecast", icon: TrendingUp, desc: "Peak at 7:30 PM — expected 89 orders/hr" },
-          { title: "Weekly Outlook", icon: Calendar, desc: "Friday estimated as busiest day" },
-          { title: "Model Accuracy", icon: Target, desc: "94.2% over the last 30 days" },
+          { title: "Today's Peak", value: "7:30 PM", sub: "~112 orders expected", icon: TrendingUp, color: "text-orange-500" },
+          { title: "Weekly Outlook", value: "Friday", sub: "Busiest day predicted", icon: Calendar, color: "text-blue-500" },
+          { title: "Model Accuracy", value: "94.2%", sub: "Last 30 days", icon: Target, color: "text-emerald-500" },
         ].map((item, i) => (
-          <motion.div
-            key={item.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 + i * 0.05 }}
-          >
-            <Card className="rounded-2xl border-border/50 hover:shadow-lg hover:shadow-primary/5 transition-shadow">
+          <motion.div key={item.title} {...fadeUp(0.05 + i * 0.05)}>
+            <Card className="rounded-2xl border-border/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
               <CardContent className="p-5">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                  <item.icon className="h-5 w-5 text-primary" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <item.icon className={`h-5 w-5 ${item.color}`} />
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-emerald-500" />
                 </div>
-                <h3 className="font-heading font-semibold mb-1">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <p className="text-2xl font-bold font-heading">{item.value}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{item.title}</p>
+                <p className="text-xs text-muted-foreground mt-1">{item.sub}</p>
               </CardContent>
             </Card>
           </motion.div>
         ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-      >
+      {/* Charts Tabs */}
+      <motion.div {...fadeUp(0.25)}>
         <Card className="rounded-2xl border-border/50">
           <CardContent className="p-6">
-            <h3 className="font-heading font-semibold text-lg mb-4">
-              Demand Curve
-            </h3>
-            <div className="flex items-center justify-center h-64 rounded-xl bg-muted/30 border border-dashed border-border text-sm text-muted-foreground">
-              Prediction chart will be rendered here
-            </div>
+            <Tabs defaultValue="hourly">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-heading font-semibold text-lg">Demand Forecast</h3>
+                <TabsList className="rounded-xl">
+                  <TabsTrigger value="hourly" className="rounded-lg text-xs cursor-pointer">Hourly</TabsTrigger>
+                  <TabsTrigger value="accuracy" className="rounded-lg text-xs cursor-pointer">Accuracy</TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent value="hourly" className="mt-0">
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={hourlyOrdersData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="predGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="oklch(0.75 0.18 55)" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="oklch(0.75 0.18 55)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.5 0 0 / 0.1)" />
+                      <XAxis dataKey="hour" tick={{ fontSize: 11 }} stroke="oklch(0.5 0 0 / 0.4)" />
+                      <YAxis tick={{ fontSize: 11 }} stroke="oklch(0.5 0 0 / 0.4)" />
+                      <Tooltip />
+                      <Legend iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+                      <Area type="monotone" dataKey="predicted" name="Predicted" stroke="oklch(0.75 0.18 55)" strokeWidth={2.5} fill="url(#predGradient)" dot={false} />
+                      <Line type="monotone" dataKey="orders" name="Actual" stroke="oklch(0.65 0.15 160)" strokeWidth={2} dot={{ r: 3, fill: "oklch(0.65 0.15 160)" }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="accuracy" className="mt-0">
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={predictionAccuracy} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.5 0 0 / 0.1)" />
+                      <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="oklch(0.5 0 0 / 0.4)" />
+                      <YAxis domain={[96, 100]} tick={{ fontSize: 11 }} stroke="oklch(0.5 0 0 / 0.4)" tickFormatter={(v) => `${v}%`} />
+                      <Tooltip />
+                      <Legend iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+                      <Line type="monotone" dataKey="accuracy" name="Accuracy %" stroke="oklch(0.65 0.15 160)" strokeWidth={2.5} dot={{ r: 4, fill: "#fff", stroke: "oklch(0.65 0.15 160)", strokeWidth: 2 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </motion.div>
