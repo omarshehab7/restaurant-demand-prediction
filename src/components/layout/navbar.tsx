@@ -61,13 +61,13 @@ export function Navbar() {
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
           <Link
-            href="/dashboard"
+            href="/login"
             className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
           >
-            Log In
+            Sign In
           </Link>
           <Link
-            href="/dashboard"
+            href="/signup"
             className={cn(
               buttonVariants({ size: "sm" }),
               "gradient-brand text-white border-0 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-shadow"
@@ -107,7 +107,7 @@ export function Navbar() {
               </a>
             ))}
             <Link
-              href="/dashboard"
+              href="/signup"
               className={cn(
                 buttonVariants(),
                 "gradient-brand text-white border-0 w-full mt-2"

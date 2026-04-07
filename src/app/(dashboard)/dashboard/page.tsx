@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,8 @@ import {
   Info,
   Flame,
   Calendar,
+  Loader2,
+  FlaskConical,
 } from "lucide-react";
 import {
   LineChart,
@@ -36,17 +38,10 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import {
-  kpiData,
-  hourlyOrdersData,
-  revenueTrendData,
-  weeklyHeatmapData,
-  heatmapTimeSlots,
-  heatmapTimeLabels,
-  busyHours,
-  smartAlerts,
-  branches,
-} from "@/lib/mock-data";
+import { heatmapTimeSlots, heatmapTimeLabels } from "@/lib/mock-data";
+import { getDashboardData, getBranches } from "@/lib/data-service";
+import { useAuth } from "@/lib/auth-context";
+import { OnboardingEmptyState } from "@/components/auth/onboarding-empty-state";
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -100,19 +95,63 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 // ─── Page ─────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const { user, isDemo } = useAuth();
   const [selectedBranch, setSelectedBranch] = useState("downtown");
   const [dateRange, setDateRange] = useState("today");
+  const [data, setData] = useState<any>(null);
+  const [branches, setBranches] = useState<any[]>([]);
+  const [isNewUser, setIsNewUser] = useState(false);
 
+  useEffect(() => {
+    getBranches().then((b) => {
+      setBranches(b);
+      // If authenticated but branch list is empty (using demo fallback for empty DB), show onboarding
+      if (!isDemo && b.every((branch: any) => ["downtown", "airport", "mall", "university"].includes(branch.id))) {
+        setIsNewUser(true);
+      }
+    });
+  }, [isDemo]);
+
+  useEffect(() => {
+    getDashboardData(selectedBranch).then(setData);
+  }, [selectedBranch]);
+
+  // New authenticated user with no data → show onboarding
+  if (!isDemo && isNewUser) {
+    return <OnboardingEmptyState />;
+  }
+
+  if (!data || branches.length === 0) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const { kpiData, hourlyOrdersData, revenueTrendData, weeklyHeatmapData, busyHours, smartAlerts } = data;
   const currentBranch = branches.find((b) => b.id === selectedBranch) ?? branches[0];
+  // Personalise greeting
+  const greeting = isDemo ? "Explorer" : (user?.email?.split("@")[0] ?? "there");
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="space-y-6">
       {/* ── Header Row ─────────────────────────────────── */}
       <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-heading text-2xl font-bold mb-1">
-            Good evening, John 👋
-          </h2>
+          <div className="flex items-center gap-2.5 mb-1">
+            <h2 className="font-heading text-2xl font-bold">
+              {timeGreeting}, {greeting} 👋
+            </h2>
+            {isDemo && (
+              <Badge variant="outline" className="text-[11px] text-amber-600 border-amber-400/40 bg-amber-50 dark:bg-amber-900/20">
+                <FlaskConical className="h-3 w-3 mr-1" />
+                Demo
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground text-sm">
             Here&apos;s what&apos;s happening at <span className="font-medium text-foreground">{currentBranch.name}</span> today.
           </p>
@@ -149,7 +188,7 @@ export default function DashboardPage() {
 
       {/* ── KPI Cards ──────────────────────────────────── */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiData.map((kpi, i) => {
+        {kpiData.map((kpi: any, i: number) => {
           const Icon = kpiIcons[i];
           return (
             <motion.div key={kpi.label} {...fadeUp(0.05 + i * 0.05)}>
@@ -242,7 +281,7 @@ export default function DashboardPage() {
                 </Badge>
               </div>
               <div className="space-y-3">
-                {smartAlerts.map((alert, i) => (
+                {smartAlerts.map((alert: any, i: number) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: 10 }}
@@ -319,7 +358,7 @@ export default function DashboardPage() {
                 <Flame className="h-5 w-5 text-orange-500" />
               </div>
               <div className="space-y-3">
-                {busyHours.map((slot, i) => (
+                {busyHours.map((slot: any, i: number) => (
                   <motion.div
                     key={slot.label}
                     initial={{ opacity: 0, x: 10 }}
@@ -377,7 +416,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {weeklyHeatmapData.map((row) => (
+                  {weeklyHeatmapData.map((row: any) => (
                     <tr key={row.day}>
                       <td className="text-xs font-semibold px-2 py-1.5 text-left">{row.day}</td>
                       {heatmapTimeSlots.map((slot) => {

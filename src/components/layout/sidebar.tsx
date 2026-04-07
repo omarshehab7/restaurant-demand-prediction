@@ -14,6 +14,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  UploadCloud,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Staffing", href: "/staffing", icon: Users },
   { label: "Inventory", href: "/inventory", icon: Package },
   { label: "Branches", href: "/branches", icon: GitBranch },
+  { label: "Upload Data", href: "/upload", icon: UploadCloud },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 

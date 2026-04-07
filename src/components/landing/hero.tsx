@@ -64,24 +64,24 @@ export function Hero() {
             className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start"
           >
             <Link
-              href="/dashboard"
+              href="/signup"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "gradient-brand text-white border-0 shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all group h-12 px-8 text-base"
               )}
             >
-              Get Started
+              Get Started Free
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a
-              href="#preview"
+            <Link
+              href="/dashboard"
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
                 "h-12 px-8 text-base"
               )}
             >
-              See Demo
-            </a>
+              Try Demo
+            </Link>
           </motion.div>
         </div>
 

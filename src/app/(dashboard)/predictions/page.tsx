@@ -1,10 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { TrendingUp, Calendar, Target, ArrowUpRight, BarChart3 } from "lucide-react";
+import { TrendingUp, Calendar, Target, ArrowUpRight, BarChart3, Loader2 } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -17,7 +18,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { predictionAccuracy, hourlyOrdersData } from "@/lib/mock-data";
+import { getPredictionsDashboard } from "@/lib/data-service";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -26,6 +27,26 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function PredictionsPage() {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    // In a real app, this branch id might come from context or query params
+    getPredictionsDashboard("downtown").then(setData);
+  }, []);
+
+  if (!data) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const { hourly, accuracy, summary } = data;
+  const peakHour = summary?.peakHour || "12PM";
+  const totalPredicted = summary?.totalPredictedToday || "~";
+  const accValue = summary?.accuracy || 94.2;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -36,16 +57,16 @@ export default function PredictionsPage() {
         </div>
         <Badge variant="secondary" className="text-sm px-4 py-1.5 w-fit">
           <Target className="h-3.5 w-3.5 mr-1.5" />
-          94.2% Accuracy
+          {accValue}% Accuracy
         </Badge>
       </motion.div>
 
       {/* Summary Cards */}
       <div className="grid sm:grid-cols-3 gap-4">
         {[
-          { title: "Today's Peak", value: "7:30 PM", sub: "~112 orders expected", icon: TrendingUp, color: "text-orange-500" },
+          { title: "Today's Peak", value: peakHour, sub: `~${totalPredicted} total expected`, icon: TrendingUp, color: "text-orange-500" },
           { title: "Weekly Outlook", value: "Friday", sub: "Busiest day predicted", icon: Calendar, color: "text-blue-500" },
-          { title: "Model Accuracy", value: "94.2%", sub: "Last 30 days", icon: Target, color: "text-emerald-500" },
+          { title: "Model Accuracy", value: `${accValue}%`, sub: "Last 7 days data", icon: Target, color: "text-emerald-500" },
         ].map((item, i) => (
           <motion.div key={item.title} {...fadeUp(0.05 + i * 0.05)}>
             <Card className="rounded-2xl border-border/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
@@ -81,7 +102,7 @@ export default function PredictionsPage() {
               <TabsContent value="hourly" className="mt-0">
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={hourlyOrdersData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                    <AreaChart data={hourly} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                       <defs>
                         <linearGradient id="predGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="oklch(0.75 0.18 55)" stopOpacity={0.25} />
@@ -103,7 +124,7 @@ export default function PredictionsPage() {
               <TabsContent value="accuracy" className="mt-0">
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={predictionAccuracy} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                    <LineChart data={accuracy} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.5 0 0 / 0.1)" />
                       <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="oklch(0.5 0 0 / 0.4)" />
                       <YAxis domain={[96, 100]} tick={{ fontSize: 11 }} stroke="oklch(0.5 0 0 / 0.4)" tickFormatter={(v) => `${v}%`} />
