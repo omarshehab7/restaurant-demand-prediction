@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# supabase (keep schema private — run manually in Supabase dashboard)
+supabase/schema.sql
