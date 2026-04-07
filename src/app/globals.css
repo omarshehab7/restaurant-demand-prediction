@@ -224,3 +224,128 @@
 .animate-pulse-glow {
   animation: pulse-glow 4s ease-in-out infinite;
 }
+
+/* ── Recharts dark-mode tooltip ─────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.12) !important;
+  padding: 10px 14px !important;
+  font-size: 12px !important;
+  color: var(--card-foreground) !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-item {
+  color: var(--card-foreground) !important;
+  padding: 2px 0 !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: var(--muted-foreground) !important;
+}
+
+/* ── Card hover system ─────────────────────────────────── */
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5;
+  }
+
+  .card-interactive {
+    @apply transition-all duration-200 hover:shadow-md hover:shadow-primary/8 hover:border-primary/20 cursor-pointer;
+  }
+
+  /* Focus ring for keyboard nav */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2;
+  }
+
+  /* Subtle shimmer for skeletons */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      oklch(from var(--muted) calc(l + 0.05) c h) 50%,
+      var(--muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* Number stat emphasis */
+  .stat-value {
+    @apply text-3xl font-bold font-heading tracking-tight;
+  }
+
+  /* Muted divider */
+  .divider {
+    @apply border-t border-border/50 my-4;
+  }
+
+  /* Badge dot pulse */
+  .dot-live {
+    @apply h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse;
+  }
+
+  /* Truncated text with tooltip hint */
+  .truncate-tip {
+    @apply truncate cursor-default;
+  }
+}
+
+/* ── Skeleton shimmer keyframe ──────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ── Dark mode card adjustments ─────────────────────────── */
+.dark {
+  & .glass {
+    background: oklch(0.15 0.01 260 / 70%);
+    border-color: oklch(1 0 0 / 8%);
+    backdrop-filter: blur(20px) saturate(160%);
+  }
+
+  & [data-slot="card"] {
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.3), inset 0 1px 0 oklch(1 0 0 / 5%);
+  }
+}
+
+/* ── Interactive link underline animation ───────────────── */
+.link-animated {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.25s ease;
+  }
+  &:hover::after { width: 100%; }
+}
+
+/* ── Badge pill variant ─────────────────────────────────── */
+.badge-pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+/* ── Responsive dashboard padding ───────────────────────── */
+@media (max-width: 640px) {
+  .dashboard-pad {
+    padding: 1rem;
+  }
+}
+
+/* ── Motion-reduce safe animations ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-delayed,
+  .animate-pulse-glow,
+  .animate-gradient {
+    animation: none !important;
+  }
+}

@@ -78,7 +78,7 @@ export default function StaffingPage() {
   const chartData = hourlyStaffing.map((h) => ({
     hour: h.hour,
     Kitchen: h.kitchen,
-    Cashier: h.cashier,
+    Service: h.service,
     Delivery: h.delivery,
     Scheduled: h.scheduled ?? Math.round(h.total * 0.9),
   }));
@@ -129,7 +129,7 @@ export default function StaffingPage() {
 
                 <div className="space-y-2.5">
                   <RoleBar label="Kitchen" value={shift.kitchen} max={10} color="text-orange-500" icon={ChefHat} />
-                  <RoleBar label="Cashier" value={shift.cashier} max={10} color="text-blue-500" icon={ShoppingCart} />
+                  <RoleBar label="Service" value={shift.service} max={10} color="text-blue-500" icon={ShoppingCart} />
                   <RoleBar label="Delivery" value={shift.delivery} max={10} color="text-emerald-500" icon={Bike} />
                 </div>
 
@@ -169,7 +169,7 @@ export default function StaffingPage() {
                       <Tooltip />
                       <Legend iconSize={8} wrapperStyle={{ fontSize: 12 }} />
                       <Bar dataKey="Kitchen"  stackId="a" fill="oklch(0.70 0.16 55)" radius={[0,0,0,0]} />
-                      <Bar dataKey="Cashier"  stackId="a" fill="oklch(0.60 0.14 220)" radius={[0,0,0,0]} />
+                      <Bar dataKey="Service"  stackId="a" fill="oklch(0.60 0.14 220)" radius={[0,0,0,0]} />
                       <Bar dataKey="Delivery" stackId="a" fill="oklch(0.65 0.15 160)" radius={[4,4,0,0]} />
                     </BarChart>
                   </ResponsiveContainer>

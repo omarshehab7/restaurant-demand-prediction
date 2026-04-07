@@ -23,7 +23,6 @@ import {
   Info,
   Flame,
   Calendar,
-  Loader2,
   FlaskConical,
 } from "lucide-react";
 import {
@@ -42,6 +41,7 @@ import { heatmapTimeSlots, heatmapTimeLabels } from "@/lib/mock-data";
 import { getDashboardData, getBranches } from "@/lib/data-service";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingEmptyState } from "@/components/auth/onboarding-empty-state";
+import { DashboardSkeleton } from "@/components/ui/skeletons";
 
 // ─── Helpers ──────────────────────────────────────────────
 
@@ -122,11 +122,7 @@ export default function DashboardPage() {
   }
 
   if (!data || branches.length === 0) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   const { kpiData, hourlyOrdersData, revenueTrendData, weeklyHeatmapData, busyHours, smartAlerts } = data;

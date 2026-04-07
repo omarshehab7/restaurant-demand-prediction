@@ -2,11 +2,11 @@
  * Staff Recommendation Engine
  *
  * Given predicted hourly order volume, calculates how many staff are needed
- * per role: kitchen, cashier, delivery.
+ * per role: kitchen, service, delivery.
  *
  * Rules (tunable):
  *  - 1 kitchen staff per 8 orders/hr, min 1
- *  - 1 cashier per 20 orders/hr, min 1
+ *  - 1 service staff per 20 orders/hr, min 1
  *  - 1 delivery per 15 orders/hr, min 0 (zero during low hours)
  */
 
@@ -14,10 +14,10 @@ export interface HourlyStaffing {
   hour: string;
   orders: number;
   kitchen: number;
-  cashier: number;
+  service: number;
   delivery: number;
   total: number;
-  scheduled?: number; // to be filled from DB or defaults
+  scheduled?: number;
 }
 
 export interface ShiftSummary {
@@ -25,22 +25,22 @@ export interface ShiftSummary {
   time: string;
   hours: string[];
   kitchen: number;
-  cashier: number;
+  service: number;
   delivery: number;
   total: number;
   status: "optimal" | "understaffed" | "overstaffed";
   scheduledTotal?: number;
 }
 
-const KITCHEN_PER_ORDERS = 8;
-const CASHIER_PER_ORDERS = 20;
+const KITCHEN_PER_ORDERS  = 8;
+const SERVICE_PER_ORDERS  = 20;
 const DELIVERY_PER_ORDERS = 15;
 
-export function calculateStaffNeeded(orders: number): { kitchen: number; cashier: number; delivery: number; total: number } {
+export function calculateStaffNeeded(orders: number): { kitchen: number; service: number; delivery: number; total: number } {
   const kitchen  = Math.max(1, Math.ceil(orders / KITCHEN_PER_ORDERS));
-  const cashier  = Math.max(1, Math.ceil(orders / CASHIER_PER_ORDERS));
+  const service  = Math.max(1, Math.ceil(orders / SERVICE_PER_ORDERS));
   const delivery = orders > 10 ? Math.ceil(orders / DELIVERY_PER_ORDERS) : 0;
-  return { kitchen, cashier, delivery, total: kitchen + cashier + delivery };
+  return { kitchen, service, delivery, total: kitchen + service + delivery };
 }
 
 export function buildHourlyStaffing(
@@ -70,9 +70,9 @@ export function buildShiftSummaries(hourlyStaffing: HourlyStaffing[]): ShiftSumm
 
     // Peak requirements for the shift (max per role)
     const kitchen  = rows.length ? Math.max(...rows.map((r) => r.kitchen))  : 1;
-    const cashier  = rows.length ? Math.max(...rows.map((r) => r.cashier))  : 1;
+    const service  = rows.length ? Math.max(...rows.map((r) => r.service))  : 1;
     const delivery = rows.length ? Math.max(...rows.map((r) => r.delivery)) : 0;
-    const total    = kitchen + cashier + delivery;
+    const total    = kitchen + service + delivery;
 
     // Simulate a scheduled total (70-100% of needed for demo)
     const scheduledTotal = Math.round(total * (0.7 + Math.random() * 0.3));
@@ -85,7 +85,7 @@ export function buildShiftSummaries(hourlyStaffing: HourlyStaffing[]): ShiftSumm
       time: shift === "Morning" ? "6 AM – 12 PM" : shift === "Afternoon" ? "12 PM – 6 PM" : "6 PM – 12 AM",
       hours,
       kitchen,
-      cashier,
+      service,
       delivery,
       total,
       scheduledTotal,
