@@ -15,17 +15,19 @@ import {
   ChevronLeft,
   ChevronRight,
   UploadCloud,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Predictions", href: "/predictions", icon: TrendingUp },
-  { label: "Staffing", href: "/staffing", icon: Users },
-  { label: "Inventory", href: "/inventory", icon: Package },
-  { label: "Branches", href: "/branches", icon: GitBranch },
-  { label: "Upload Data", href: "/upload", icon: UploadCloud },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Dashboard",   href: "/dashboard",   icon: LayoutDashboard },
+  { label: "Predictions",  href: "/predictions",  icon: TrendingUp      },
+  { label: "Staffing",    href: "/staffing",    icon: Users            },
+  { label: "Inventory",   href: "/inventory",   icon: Package          },
+  { label: "Branches",    href: "/branches",    icon: GitBranch        },
+  { label: "Alerts",      href: "/alerts",      icon: Bell             },
+  { label: "Upload Data", href: "/upload",      icon: UploadCloud      },
+  { label: "Settings",    href: "/settings",    icon: Settings         },
 ];
 
 export function Sidebar() {
