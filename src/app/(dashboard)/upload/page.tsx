@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { UploadCloud, FileType, CheckCircle2, AlertCircle, TrendingUp } from "lucide-react";
+import { UploadCloud, FileType, CheckCircle2, AlertCircle, TrendingUp, Info } from "lucide-react";
 import Papa from "papaparse";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,9 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [preview, setPreview] = useState<any[]>([]);
+
+  // Check Supabase availability once at render time
+  const isSupabaseConfigured = !!getSupabase();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -47,7 +50,9 @@ export default function UploadPage() {
 
     const supabase = getSupabase();
     if (!supabase) {
-      setError("Supabase is not configured. Please set environment variables.");
+      setError(
+        "Supabase is not connected. Copy .env.local.example to .env.local and add your project URL and anon key, then restart the dev server."
+      );
       return;
     }
 
@@ -141,6 +146,31 @@ export default function UploadPage() {
            <p className="text-muted-foreground">Import historical orders to train the prediction engine.</p>
         </div>
       </motion.div>
+
+      {/* ── Supabase not configured banner ───────────────── */}
+      {!isSupabaseConfigured && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="flex items-start gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-5 py-4"
+        >
+          <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-0.5">
+              Supabase not connected — running in demo mode
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              To enable real data uploads, copy{" "}
+              <code className="text-[11px] font-mono bg-muted px-1.5 py-0.5 rounded">.env.local.example</code>{" "}
+              to{" "}
+              <code className="text-[11px] font-mono bg-muted px-1.5 py-0.5 rounded">.env.local</code>,
+              fill in your Supabase project URL and anon key, then restart the dev server.
+              CSV preview still works below.
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <Card className="rounded-2xl border-border/50 border-dashed border-2">

@@ -35,14 +35,19 @@ function statusBadge(status: ShiftSummary["status"]) {
   }
 }
 
-function RoleBar({ label, value, max, color, icon: Icon }: {
-  label: string; value: number; max: number; color: string; icon: React.ElementType;
+function RoleBar({ label, value, max, iconBg, barColor, icon: Icon }: {
+  label: string;
+  value: number;
+  max: number;
+  iconBg: string;   // explicit Tailwind class for icon bg, e.g. "bg-orange-500/15"
+  barColor: string; // hex/oklch color string for the bar fill via inline style
+  icon: React.ElementType;
 }) {
   const pct = Math.min(100, Math.round((value / max) * 100));
   return (
     <div className="flex items-center gap-3">
-      <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${color.replace("text-", "bg-").replace("500", "500/15")}`}>
-        <Icon className={`h-3.5 w-3.5 ${color}`} />
+      <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
+        <Icon className="h-3.5 w-3.5" style={{ color: barColor }} />
       </div>
       <div className="flex-1">
         <div className="flex justify-between text-xs mb-1">
@@ -51,7 +56,8 @@ function RoleBar({ label, value, max, color, icon: Icon }: {
         </div>
         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
           <motion.div
-            className={`h-full rounded-full ${color.replace("text-", "bg-")}`}
+            className="h-full rounded-full"
+            style={{ backgroundColor: barColor }}
             initial={{ width: 0 }}
             animate={{ width: pct + "%" }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -128,9 +134,9 @@ export default function StaffingPage() {
                 <p className="text-xs text-muted-foreground mb-4">{shift.time}</p>
 
                 <div className="space-y-2.5">
-                  <RoleBar label="Kitchen" value={shift.kitchen} max={10} color="text-orange-500" icon={ChefHat} />
-                  <RoleBar label="Service" value={shift.service} max={10} color="text-blue-500" icon={ShoppingCart} />
-                  <RoleBar label="Delivery" value={shift.delivery} max={10} color="text-emerald-500" icon={Bike} />
+                  <RoleBar label="Kitchen"  value={shift.kitchen}  max={10} iconBg="bg-orange-500/15" barColor="oklch(0.70 0.18 55)"  icon={ChefHat} />
+                  <RoleBar label="Service"  value={shift.service}  max={10} iconBg="bg-blue-500/15"   barColor="oklch(0.60 0.16 260)" icon={ShoppingCart} />
+                  <RoleBar label="Delivery" value={shift.delivery} max={10} iconBg="bg-emerald-500/15" barColor="oklch(0.65 0.15 160)" icon={Bike} />
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/50 flex justify-between text-xs">
